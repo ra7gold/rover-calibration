@@ -6,7 +6,6 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Rover Cal">
-    <link rel="manifest" href="manifest.json">
     <title>Rover Offset Calibration Calculator</title>
     <style>
         :root {
@@ -22,10 +21,7 @@
             --orange: #e67e22;
         }
         
-        * {
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -38,20 +34,36 @@
             max-width: 420px;
         }
         
-        h1 {
-            font-size: 1.3rem;
-            text-align: center;
-            margin: 0 0 4px 0;
-            color: var(--highlight);
-        }
+        h1 { font-size: 1.3rem; text-align: center; margin: 0 0 4px 0; color: var(--highlight); }
+        .subtitle { text-align: center; font-size: 0.8rem; color: #888; margin-bottom: 16px; }
         
-        .subtitle {
-            text-align: center;
-            font-size: 0.8rem;
-            color: #888;
+        .tab-bar {
+            display: flex;
+            gap: 4px;
             margin-bottom: 16px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 4px;
         }
-        
+        .tab-btn {
+            flex: 1;
+            padding: 10px 8px;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            color: #888;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .tab-btn.active {
+            background: var(--accent);
+            color: var(--text);
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
         .instructions {
             background: var(--card);
             border-radius: 12px;
@@ -59,17 +71,8 @@
             margin-bottom: 12px;
             border-left: 3px solid var(--highlight);
         }
-        
-        .instructions p {
-            margin: 0;
-            font-size: 0.85rem;
-            color: #ccc;
-            line-height: 1.5;
-        }
-        
-        .instructions strong {
-            color: var(--yellow);
-        }
+        .instructions p { margin: 0; font-size: 0.85rem; color: #ccc; line-height: 1.5; }
+        .instructions strong { color: var(--yellow); }
 
         .section {
             background: var(--card);
@@ -77,7 +80,6 @@
             padding: 14px;
             margin-bottom: 12px;
         }
-        
         .section-title {
             font-size: 0.85rem;
             font-weight: 600;
@@ -86,33 +88,12 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-        
-        .input-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-
-        .input-grid.three-col {
-            grid-template-columns: 1fr 1fr 1fr;
-        }
-        
-        .input-group {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .input-group.full-width {
-            grid-column: 1 / -1;
-        }
-        
-        .input-group label {
-            font-size: 0.75rem;
-            color: #aaa;
-            margin-bottom: 4px;
-        }
-        
-        .input-group input, .input-group select {
+        .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .input-grid.three-col { grid-template-columns: 1fr 1fr 1fr; }
+        .input-group { display: flex; flex-direction: column; }
+        .input-group.full-width { grid-column: 1 / -1; }
+        .input-group label { font-size: 0.75rem; color: #aaa; margin-bottom: 4px; }
+        .input-group input {
             background: var(--input-bg);
             border: 2px solid transparent;
             border-radius: 8px;
@@ -122,41 +103,25 @@
             width: 100%;
             transition: border-color 0.2s;
         }
-        
-        .input-group input:focus, .input-group select:focus {
-            outline: none;
-            border-color: var(--yellow);
-        }
-        
-        .input-group input::placeholder {
-            color: #666;
-        }
+        .input-group input:focus { outline: none; border-color: var(--yellow); }
+        .input-group input::placeholder { color: #666; }
+        .input-group input[readonly] { background: #1a1a2e; color: #888; }
 
-        .input-group input[readonly] {
-            background: #1a1a2e;
-            color: #888;
-        }
-
-        .sample-row {
-            display: grid;
-            grid-template-columns: auto 1fr 1fr 1fr 40px;
-            gap: 6px;
-            align-items: end;
-            margin-bottom: 8px;
-            padding: 8px;
+        .yaw-card {
             background: rgba(0,0,0,0.2);
-            border-radius: 8px;
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-left: 3px solid var(--blue);
         }
-
-        .sample-row .sample-num {
+        .yaw-card .yaw-label {
             font-size: 0.8rem;
-            color: var(--yellow);
             font-weight: 600;
-            padding-bottom: 12px;
-            min-width: 20px;
+            color: var(--blue);
+            margin-bottom: 10px;
         }
-
-        .sample-row input {
+        .yaw-card .input-grid { gap: 8px; }
+        .yaw-card input {
             background: var(--input-bg);
             border: 2px solid transparent;
             border-radius: 6px;
@@ -165,54 +130,8 @@
             font-size: 0.9rem;
             width: 100%;
         }
-
-        .sample-row input:focus {
-            outline: none;
-            border-color: var(--yellow);
-        }
-
-        .sample-row .remove-btn {
-            background: none;
-            border: none;
-            color: var(--highlight);
-            font-size: 1.2rem;
-            cursor: pointer;
-            padding: 8px;
-            border-radius: 6px;
-        }
-
-        .sample-header {
-            display: grid;
-            grid-template-columns: auto 1fr 1fr 1fr 40px;
-            gap: 6px;
-            padding: 0 8px;
-            margin-bottom: 4px;
-        }
-
-        .sample-header span {
-            font-size: 0.7rem;
-            color: #888;
-            text-transform: uppercase;
-        }
-
-        .add-btn {
-            display: block;
-            width: 100%;
-            padding: 10px;
-            border: 2px dashed #444;
-            border-radius: 8px;
-            background: transparent;
-            color: #888;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            margin-top: 4px;
-        }
-
-        .add-btn:active {
-            border-color: var(--yellow);
-            color: var(--yellow);
-        }
+        .yaw-card input:focus { outline: none; border-color: var(--yellow); }
+        .yaw-card label { font-size: 0.7rem; color: #888; margin-bottom: 3px; }
 
         .status-badge {
             display: inline-block;
@@ -222,7 +141,6 @@
             font-weight: 600;
             margin-left: 8px;
         }
-
         .status-badge.good { background: rgba(46,204,113,0.2); color: var(--green); }
         .status-badge.warn { background: rgba(230,126,34,0.2); color: var(--orange); }
         .status-badge.bad { background: rgba(233,69,96,0.2); color: var(--highlight); }
@@ -231,714 +149,838 @@
             background: linear-gradient(135deg, #1e3a5f 0%, #0f3460 100%);
             border: 2px solid var(--green);
         }
-        
-        .results .section-title {
-            color: var(--green);
-        }
-        
-        .result-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-        
+        .results .section-title { color: var(--green); }
+        .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .result-item {
             background: rgba(0,0,0,0.3);
             border-radius: 10px;
             padding: 14px;
             text-align: center;
         }
-        
-        .result-item.full-width {
-            grid-column: 1 / -1;
-        }
-        
-        .result-label {
-            font-size: 0.75rem;
-            color: #aaa;
-            margin-bottom: 6px;
-        }
-        
+        .result-item.full-width { grid-column: 1 / -1; }
+        .result-label { font-size: 0.75rem; color: #aaa; margin-bottom: 6px; }
         .result-value {
             font-size: 1.5rem;
             font-weight: 700;
             color: var(--green);
             font-family: 'SF Mono', 'Menlo', monospace;
         }
-        
-        .result-unit {
-            font-size: 0.8rem;
-            color: #888;
-            margin-left: 4px;
-        }
-
-        .result-sub {
-            font-size: 0.7rem;
-            color: #888;
-            margin-top: 4px;
-        }
+        .result-unit { font-size: 0.8rem; color: #888; margin-left: 4px; }
+        .result-sub { font-size: 0.7rem; color: #888; margin-top: 4px; }
+        .divider { height: 1px; background: rgba(255,255,255,0.1); margin: 12px 0; }
+        .info-text { font-size: 0.8rem; color: #888; line-height: 1.4; margin: 0; }
 
         .copy-btn {
-            display: block;
-            width: 100%;
-            margin-top: 14px;
-            padding: 14px;
-            border: none;
-            border-radius: 10px;
-            background: var(--green);
-            color: #000;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
+            display: block; width: 100%; margin-top: 14px; padding: 14px;
+            border: none; border-radius: 10px; background: var(--green);
+            color: #000; font-size: 1rem; font-weight: 600; cursor: pointer;
             transition: all 0.2s;
         }
-        
-        .copy-btn:active {
-            transform: scale(0.97);
-            opacity: 0.9;
-        }
+        .copy-btn:active { transform: scale(0.97); opacity: 0.9; }
 
         .clear-btn {
-            width: 100%;
-            margin-bottom: 12px;
-            padding: 10px 8px;
-            border: none;
-            border-radius: 8px;
-            background: var(--highlight);
-            color: var(--text);
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: all 0.2s;
+            width: 100%; margin-bottom: 12px; padding: 10px 8px;
+            border: none; border-radius: 8px; background: var(--highlight);
+            color: var(--text); font-size: 0.85rem; cursor: pointer;
         }
+        .clear-btn:active { transform: scale(0.97); }
 
-        .clear-btn:active {
-            transform: scale(0.97);
-        }
-        
         .toast {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
+            position: fixed; bottom: 30px; left: 50%;
             transform: translateX(-50%) translateY(100px);
-            background: var(--green);
-            color: #000;
-            padding: 12px 24px;
-            border-radius: 25px;
-            font-weight: 600;
-            transition: transform 0.3s ease;
-            z-index: 1000;
+            background: var(--green); color: #000; padding: 12px 24px;
+            border-radius: 25px; font-weight: 600;
+            transition: transform 0.3s ease; z-index: 1000;
         }
-        
-        .toast.show {
-            transform: translateX(-50%) translateY(0);
-        }
+        .toast.show { transform: translateX(-50%) translateY(0); }
 
         .collapsible-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
+            display: flex; justify-content: space-between;
+            align-items: center; cursor: pointer;
         }
+        .collapsible-header .toggle { font-size: 1.2rem; transition: transform 0.3s; }
+        .collapsible-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+        .collapsible-content.open { max-height: 800px; }
+        .collapsed .toggle { transform: rotate(-90deg); }
 
-        .collapsible-header .toggle {
-            font-size: 1.2rem;
-            transition: transform 0.3s;
+        .qc-result {
+            text-align: center;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 12px;
         }
+        .qc-result.pass { background: rgba(46,204,113,0.15); border: 2px solid var(--green); }
+        .qc-result.warn { background: rgba(230,126,34,0.15); border: 2px solid var(--orange); }
+        .qc-result.fail { background: rgba(233,69,96,0.15); border: 2px solid var(--highlight); }
+        .qc-result .qc-icon { font-size: 3rem; margin-bottom: 8px; }
+        .qc-result .qc-text { font-size: 1.2rem; font-weight: 700; }
+        .qc-result .qc-detail { font-size: 0.85rem; color: #ccc; margin-top: 8px; }
 
-        .collapsible-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease;
+        .diagram {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 12px;
+            text-align: center;
         }
-
-        .collapsible-content.open {
-            max-height: 800px;
-        }
-
-        .collapsed .toggle {
-            transform: rotate(-90deg);
-        }
-
-        .divider {
-            height: 1px;
-            background: rgba(255,255,255,0.1);
-            margin: 12px 0;
-        }
-
-        .info-text {
-            font-size: 0.8rem;
-            color: #888;
-            line-height: 1.4;
-            margin: 0;
-        }
-
-        .per-sample-results {
-            margin-top: 12px;
-        }
-
-        .per-sample-row {
-            display: grid;
-            grid-template-columns: auto 1fr 1fr 1fr 1fr;
-            gap: 6px;
-            padding: 6px 8px;
-            font-size: 0.75rem;
-            font-family: 'SF Mono', 'Menlo', monospace;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-        }
-
-        .per-sample-row.header {
-            color: #888;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            font-weight: 600;
-            border-bottom: 1px solid rgba(255,255,255,0.15);
-        }
-
-        .per-sample-row .num { color: var(--yellow); min-width: 20px; }
-        .per-sample-row .val { color: var(--text); text-align: right; }
-        .per-sample-row .outlier { color: var(--highlight); }
+        .diagram svg { max-width: 100%; }
     </style>
 </head>
 <body>
     <h1>📡 Rover Offset Calibration</h1>
-    <p class="subtitle">Third-Rover Method — No Ground Targets Required</p>
-    
-    <div class="instructions">
-        <p><strong>Step 1:</strong> Mount survey rover at known offset from work point<br>
-        <strong>Step 2:</strong> Enter the mechanical offset of the rover from work point<br>
-        <strong>Step 3:</strong> Collect simultaneous readings — machine antenna + rover position<br>
-        <strong>Step 4:</strong> Enter machine heading from dual-antenna for each sample<br>
-        <strong>Minimum:</strong> 3 samples required, 10+ recommended</p>
+    <p class="subtitle">Third-Rover Method — No Ground Targets</p>
+
+    <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('initial')">🔧 Initial Cal</button>
+        <button class="tab-btn" onclick="switchTab('qc')">✅ Morning QC</button>
     </div>
 
-    <div class="section">
-        <div class="section-title">📐 Rover Mechanical Offset from Work Point</div>
-        <p class="info-text" style="margin-bottom: 12px;">Known fixed offset of the calibration rover from the machine work point (tip). Measured along machine body axes.</p>
-        <div class="input-grid three-col">
-            <div class="input-group">
-                <label>X (forward) ft</label>
-                <input type="number" id="mechX" step="any" placeholder="5.000" oninput="calculate()">
-            </div>
-            <div class="input-group">
-                <label>Y (right) ft</label>
-                <input type="number" id="mechY" step="any" placeholder="0.000" oninput="calculate()">
-            </div>
-            <div class="input-group">
-                <label>Z (down) ft</label>
-                <input type="number" id="mechZ" step="any" placeholder="0.000" oninput="calculate()">
-            </div>
-        </div>
-    </div>
-
-    <div class="section">
-        <div class="section-title">📡 Current Machine Antenna Offsets</div>
-        <p class="info-text" style="margin-bottom: 12px;">Enter current offsets programmed in the machine (what we're verifying/refining).</p>
-        <div class="input-grid">
-            <div class="input-group full-width">
-                <label>Current Heading Offset (°)</label>
-                <input type="number" id="curHeadingOffset" step="any" placeholder="-89.2" oninput="calculate()">
-            </div>
-            <div class="input-group">
-                <label>Current X (forward) ft</label>
-                <input type="number" id="curX" step="any" placeholder="3.586" oninput="calculate()">
-            </div>
-            <div class="input-group">
-                <label>Current Y (right) ft</label>
-                <input type="number" id="curY" step="any" placeholder="4.478" oninput="calculate()">
-            </div>
-            <div class="input-group full-width">
-                <label>Current Z (down) ft</label>
-                <input type="number" id="curZ" step="any" placeholder="-6.737" oninput="calculate()">
-            </div>
-        </div>
-    </div>
-
-    <button class="clear-btn" onclick="clearSamples()">Clear All Samples</button>
-
-    <div class="section">
-        <div class="section-title">📊 Sample Data <span id="sampleCount" class="status-badge warn">0 samples</span></div>
-        <p class="info-text" style="margin-bottom: 12px;">For each sample: record machine antenna position (AH=0), rover position, and machine heading from dual-antenna. Collect with machine at different headings for best results.</p>
-        
-        <div class="sample-header">
-            <span>#</span>
-            <span>Mach N (ft)</span>
-            <span>Mach E (ft)</span>
-            <span>Mach Z (ft)</span>
-            <span></span>
-        </div>
-        <div class="sample-header" style="margin-top: -4px;">
-            <span></span>
-            <span>Rover N (ft)</span>
-            <span>Rover E (ft)</span>
-            <span>Rover Z (ft)</span>
-            <span></span>
-        </div>
-        <div class="sample-header" style="margin-top: -4px; margin-bottom: 8px;">
-            <span></span>
-            <span>Heading (°)</span>
-            <span>Pitch (°)</span>
-            <span>Roll (°)</span>
-            <span></span>
+    <!-- ==================== INITIAL CALIBRATION TAB ==================== -->
+    <div class="tab-content active" id="tab-initial">
+        <div class="instructions">
+            <p><strong>Step 1:</strong> Mount calibration rover on mast at known offset from work point<br>
+            <strong>Step 2:</strong> Enter rover mechanical offset below<br>
+            <strong>Step 3:</strong> With machine stationary, rotate mast to 3 yaw positions (-30°, 0°, +30°)<br>
+            <strong>Step 4:</strong> At each position, record both antenna and rover readings<br>
+            <strong>Result:</strong> Heading, X, Y, Z offsets computed automatically</p>
         </div>
 
-        <div id="samplesContainer"></div>
-        
-        <button class="add-btn" onclick="addSample()">+ Add Sample</button>
-    </div>
-
-    <div class="section results" id="resultsSection">
-        <div class="section-title">✅ Refined Antenna Offsets</div>
-        <p class="info-text" style="margin-bottom: 12px;">Computed corrections based on comparing the rover-derived work point against the machine-reported work point. Shows the <strong style="color: var(--yellow);">adjustment (Δ)</strong> to apply to your current offsets and the <strong style="color: var(--green);">new absolute values</strong>.</p>
-        
-        <div class="input-group" style="margin-bottom: 12px;">
-            <label>Machine ID</label>
-            <input type="text" id="machineId" placeholder="Enter machine ID">
+        <!-- Diagram -->
+        <div class="diagram">
+            <svg viewBox="0 0 300 160" xmlns="http://www.w3.org/2000/svg">
+                <!-- Machine body -->
+                <rect x="110" y="110" width="80" height="40" rx="6" fill="#16213e" stroke="#444" stroke-width="1.5"/>
+                <text x="150" y="135" text-anchor="middle" fill="#888" font-size="10">MACHINE</text>
+                <!-- Mast pivot -->
+                <circle cx="150" cy="110" r="4" fill="#e94560"/>
+                <text x="162" y="108" fill="#e94560" font-size="8">PIVOT</text>
+                <!-- Mast at 0° -->
+                <line x1="150" y1="110" x2="150" y2="20" stroke="#f4d03f" stroke-width="2" stroke-dasharray="4,3"/>
+                <!-- Mast antennas -->
+                <circle cx="150" cy="35" r="5" fill="#3498db" stroke="#fff" stroke-width="1"/>
+                <circle cx="150" cy="50" r="5" fill="#3498db" stroke="#fff" stroke-width="1"/>
+                <text x="168" y="38" fill="#3498db" font-size="8">ANT 1</text>
+                <text x="168" y="53" fill="#3498db" font-size="8">ANT 2</text>
+                <!-- Rover -->
+                <circle cx="150" cy="70" r="5" fill="#2ecc71" stroke="#fff" stroke-width="1"/>
+                <text x="168" y="73" fill="#2ecc71" font-size="8">ROVER</text>
+                <!-- Work point -->
+                <line x1="145" y1="20" x2="155" y2="20" stroke="#e94560" stroke-width="2"/>
+                <line x1="150" y1="15" x2="150" y2="25" stroke="#e94560" stroke-width="2"/>
+                <text x="168" y="23" fill="#e94560" font-size="8">WORK PT</text>
+                <!-- Yaw arrows -->
+                <path d="M 120 55 A 35 35 0 0 0 105 85" fill="none" stroke="#888" stroke-width="1" stroke-dasharray="3,2" marker-end="url(#arrow)"/>
+                <path d="M 180 55 A 35 35 0 0 1 195 85" fill="none" stroke="#888" stroke-width="1" stroke-dasharray="3,2" marker-end="url(#arrow)"/>
+                <text x="95" y="75" fill="#888" font-size="8">-30°</text>
+                <text x="195" y="75" fill="#888" font-size="8">+30°</text>
+                <defs>
+                    <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse">
+                        <path d="M 0 0 L 10 5 L 0 10 z" fill="#888"/>
+                    </marker>
+                </defs>
+            </svg>
         </div>
-        
-        <div class="result-grid">
-            <div class="result-item full-width">
-                <div class="result-label">Heading Correction</div>
-                <div class="result-value"><span id="resultHeading">--</span><span class="result-unit">°</span></div>
-                <div class="result-sub">New: <span id="newHeading">--</span>°</div>
-            </div>
-            <div class="result-item">
-                <div class="result-label">ΔX (forward)</div>
-                <div class="result-value"><span id="resultX">--</span><span class="result-unit">ft</span></div>
-                <div class="result-sub">New: <span id="newX">--</span> ft</div>
-            </div>
-            <div class="result-item">
-                <div class="result-label">ΔY (right)</div>
-                <div class="result-value"><span id="resultY">--</span><span class="result-unit">ft</span></div>
-                <div class="result-sub">New: <span id="newY">--</span> ft</div>
-            </div>
-            <div class="result-item full-width">
-                <div class="result-label">ΔZ (down)</div>
-                <div class="result-value"><span id="resultZ">--</span><span class="result-unit">ft</span></div>
-                <div class="result-sub">New: <span id="newZ">--</span> ft</div>
+
+        <div class="section">
+            <div class="section-title">📐 Rover Mechanical Offset from Work Point</div>
+            <p class="info-text" style="margin-bottom: 12px;">Measured along the mast body axes. X = along mast (toward antennas), Y = right, Z = perpendicular to mast.</p>
+            <div class="input-grid three-col">
+                <div class="input-group">
+                    <label>X (up mast) ft</label>
+                    <input type="number" id="ic_mechX" step="any" placeholder="5.000" oninput="calcInitial()">
+                </div>
+                <div class="input-group">
+                    <label>Y (right) ft</label>
+                    <input type="number" id="ic_mechY" step="any" placeholder="0.000" oninput="calcInitial()">
+                </div>
+                <div class="input-group">
+                    <label>Z (perp) ft</label>
+                    <input type="number" id="ic_mechZ" step="any" placeholder="0.000" oninput="calcInitial()">
+                </div>
             </div>
         </div>
 
-        <div class="divider"></div>
+        <button class="clear-btn" onclick="clearInitialSamples()">Clear All Readings</button>
 
-        <div class="result-grid">
-            <div class="result-item">
-                <div class="result-label">RMS Error</div>
-                <div class="result-value"><span id="resultRMS">--</span><span class="result-unit">ft</span></div>
+        <div class="section">
+            <div class="section-title">📊 Mast Position Readings</div>
+            <p class="info-text" style="margin-bottom: 12px;">At each yaw position, record the machine antenna (primary) and rover positions. Keep machine stationary. Pitch/roll from inclinometer.</p>
+
+            <!-- Yaw Position 1: -30° -->
+            <div class="yaw-card">
+                <div class="yaw-label">🔄 Yaw Position 1 — Target: -30°</div>
+                <div class="input-grid three-col">
+                    <div class="input-group">
+                        <label>Reported Heading (°)</label>
+                        <input type="number" id="ic_h1" step="any" placeholder="-30" oninput="calcInitial()">
+                    </div>
+                    <div class="input-group">
+                        <label>Pitch (°)</label>
+                        <input type="number" id="ic_p1" step="any" placeholder="0.0" value="0" oninput="calcInitial()">
+                    </div>
+                    <div class="input-group">
+                        <label>Roll (°)</label>
+                        <input type="number" id="ic_r1" step="any" placeholder="0.0" value="0" oninput="calcInitial()">
+                    </div>
+                </div>
+                <div style="margin-top: 8px;">
+                    <div style="font-size: 0.7rem; color: var(--blue); margin-bottom: 4px;">Machine Antenna (AH=0)</div>
+                    <div class="input-grid three-col">
+                        <div class="input-group"><label>N (ft)</label><input type="number" id="ic_aN1" step="any" placeholder="Northing" oninput="calcInitial()"></div>
+                        <div class="input-group"><label>E (ft)</label><input type="number" id="ic_aE1" step="any" placeholder="Easting" oninput="calcInitial()"></div>
+                        <div class="input-group"><label>Z (ft)</label><input type="number" id="ic_aZ1" step="any" placeholder="Elevation" oninput="calcInitial()"></div>
+                    </div>
+                </div>
+                <div style="margin-top: 8px;">
+                    <div style="font-size: 0.7rem; color: var(--green); margin-bottom: 4px;">Calibration Rover</div>
+                    <div class="input-grid three-col">
+                        <div class="input-group"><label>N (ft)</label><input type="number" id="ic_rN1" step="any" placeholder="Northing" oninput="calcInitial()"></div>
+                        <div class="input-group"><label>E (ft)</label><input type="number" id="ic_rE1" step="any" placeholder="Easting" oninput="calcInitial()"></div>
+                        <div class="input-group"><label>Z (ft)</label><input type="number" id="ic_rZ1" step="any" placeholder="Elevation" oninput="calcInitial()"></div>
+                    </div>
+                </div>
             </div>
-            <div class="result-item">
-                <div class="result-label">Max Residual</div>
-                <div class="result-value"><span id="resultMaxRes">--</span><span class="result-unit">ft</span></div>
+
+            <!-- Yaw Position 2: 0° -->
+            <div class="yaw-card">
+                <div class="yaw-label">🔄 Yaw Position 2 — Target: 0° (Straight)</div>
+                <div class="input-grid three-col">
+                    <div class="input-group">
+                        <label>Reported Heading (°)</label>
+                        <input type="number" id="ic_h2" step="any" placeholder="0" oninput="calcInitial()">
+                    </div>
+                    <div class="input-group">
+                        <label>Pitch (°)</label>
+                        <input type="number" id="ic_p2" step="any" placeholder="0.0" value="0" oninput="calcInitial()">
+                    </div>
+                    <div class="input-group">
+                        <label>Roll (°)</label>
+                        <input type="number" id="ic_r2" step="any" placeholder="0.0" value="0" oninput="calcInitial()">
+                    </div>
+                </div>
+                <div style="margin-top: 8px;">
+                    <div style="font-size: 0.7rem; color: var(--blue); margin-bottom: 4px;">Machine Antenna (AH=0)</div>
+                    <div class="input-grid three-col">
+                        <div class="input-group"><label>N (ft)</label><input type="number" id="ic_aN2" step="any" placeholder="Northing" oninput="calcInitial()"></div>
+                        <div class="input-group"><label>E (ft)</label><input type="number" id="ic_aE2" step="any" placeholder="Easting" oninput="calcInitial()"></div>
+                        <div class="input-group"><label>Z (ft)</label><input type="number" id="ic_aZ2" step="any" placeholder="Elevation" oninput="calcInitial()"></div>
+                    </div>
+                </div>
+                <div style="margin-top: 8px;">
+                    <div style="font-size: 0.7rem; color: var(--green); margin-bottom: 4px;">Calibration Rover</div>
+                    <div class="input-grid three-col">
+                        <div class="input-group"><label>N (ft)</label><input type="number" id="ic_rN2" step="any" placeholder="Northing" oninput="calcInitial()"></div>
+                        <div class="input-group"><label>E (ft)</label><input type="number" id="ic_rE2" step="any" placeholder="Easting" oninput="calcInitial()"></div>
+                        <div class="input-group"><label>Z (ft)</label><input type="number" id="ic_rZ2" step="any" placeholder="Elevation" oninput="calcInitial()"></div>
+                    </div>
+                </div>
             </div>
-            <div class="result-item full-width">
-                <div class="result-label">Confidence</div>
-                <div class="result-value"><span id="resultConfidence">--</span></div>
+
+            <!-- Yaw Position 3: +30° -->
+            <div class="yaw-card">
+                <div class="yaw-label">🔄 Yaw Position 3 — Target: +30°</div>
+                <div class="input-grid three-col">
+                    <div class="input-group">
+                        <label>Reported Heading (°)</label>
+                        <input type="number" id="ic_h3" step="any" placeholder="30" oninput="calcInitial()">
+                    </div>
+                    <div class="input-group">
+                        <label>Pitch (°)</label>
+                        <input type="number" id="ic_p3" step="any" placeholder="0.0" value="0" oninput="calcInitial()">
+                    </div>
+                    <div class="input-group">
+                        <label>Roll (°)</label>
+                        <input type="number" id="ic_r3" step="any" placeholder="0.0" value="0" oninput="calcInitial()">
+                    </div>
+                </div>
+                <div style="margin-top: 8px;">
+                    <div style="font-size: 0.7rem; color: var(--blue); margin-bottom: 4px;">Machine Antenna (AH=0)</div>
+                    <div class="input-grid three-col">
+                        <div class="input-group"><label>N (ft)</label><input type="number" id="ic_aN3" step="any" placeholder="Northing" oninput="calcInitial()"></div>
+                        <div class="input-group"><label>E (ft)</label><input type="number" id="ic_aE3" step="any" placeholder="Easting" oninput="calcInitial()"></div>
+                        <div class="input-group"><label>Z (ft)</label><input type="number" id="ic_aZ3" step="any" placeholder="Elevation" oninput="calcInitial()"></div>
+                    </div>
+                </div>
+                <div style="margin-top: 8px;">
+                    <div style="font-size: 0.7rem; color: var(--green); margin-bottom: 4px;">Calibration Rover</div>
+                    <div class="input-grid three-col">
+                        <div class="input-group"><label>N (ft)</label><input type="number" id="ic_rN3" step="any" placeholder="Northing" oninput="calcInitial()"></div>
+                        <div class="input-group"><label>E (ft)</label><input type="number" id="ic_rE3" step="any" placeholder="Easting" oninput="calcInitial()"></div>
+                        <div class="input-group"><label>Z (ft)</label><input type="number" id="ic_rZ3" step="any" placeholder="Elevation" oninput="calcInitial()"></div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <button class="copy-btn" onclick="copyResults()">📋 Copy Results</button>
-    </div>
-
-    <div class="section collapsed" id="debugSection">
-        <div class="collapsible-header" onclick="toggleDebug()">
-            <div class="section-title" style="margin-bottom:0">🔍 Per-Sample Residuals</div>
-            <span class="toggle">▼</span>
+        <div class="section results" id="ic_results">
+            <div class="section-title">✅ Computed Antenna Offsets</div>
+            <p class="info-text" style="margin-bottom: 12px;">These are the antenna offsets from the work point, computed from the rover reference. Enter these in the machine's Dual Head Setup and Position Adjust screens.</p>
+            <div class="input-group" style="margin-bottom: 12px;">
+                <label>Machine ID</label>
+                <input type="text" id="ic_machineId" placeholder="Enter machine ID">
+            </div>
+            <div class="result-grid">
+                <div class="result-item full-width">
+                    <div class="result-label">Heading Offset</div>
+                    <div class="result-value"><span id="ic_resultH">--</span><span class="result-unit">°</span></div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">X Offset (forward)</div>
+                    <div class="result-value"><span id="ic_resultX">--</span><span class="result-unit">ft</span></div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Y Offset (right)</div>
+                    <div class="result-value"><span id="ic_resultY">--</span><span class="result-unit">ft</span></div>
+                </div>
+                <div class="result-item full-width">
+                    <div class="result-label">Z Offset (down)</div>
+                    <div class="result-value"><span id="ic_resultZ">--</span><span class="result-unit">ft</span></div>
+                </div>
+            </div>
+            <div class="divider"></div>
+            <div class="result-grid">
+                <div class="result-item">
+                    <div class="result-label">Fit RMS</div>
+                    <div class="result-value"><span id="ic_rms">--</span><span class="result-unit">ft</span></div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Vector Check</div>
+                    <div class="result-value"><span id="ic_vecCheck">--</span></div>
+                </div>
+            </div>
+            <button class="copy-btn" onclick="copyInitialResults()">📋 Copy Results</button>
         </div>
-        <div class="collapsible-content" id="debugContent">
-            <div class="per-sample-results" id="perSampleResults">
-                <div class="per-sample-row header">
-                    <span>#</span>
-                    <span>ΔX err</span>
-                    <span>ΔY err</span>
-                    <span>ΔZ err</span>
-                    <span>Total</span>
+
+        <div class="section collapsed" id="ic_debugSection">
+            <div class="collapsible-header" onclick="toggleSection('ic_debug')">
+                <div class="section-title" style="margin-bottom:0">🔍 Debug Values</div>
+                <span class="toggle">▼</span>
+            </div>
+            <div class="collapsible-content" id="ic_debugContent">
+                <div style="margin-top: 12px; font-family: monospace; font-size: 0.8rem; color: #888;" id="ic_debugText">
+                    Waiting for data...
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="toast" id="toast">Copied to clipboard!</div>
+    <!-- ==================== MORNING QC TAB ==================== -->
+    <div class="tab-content" id="tab-qc">
+        <div class="instructions">
+            <p><strong>Quick morning check:</strong> With rover mounted, take a single reading at the current work point. Compares rover-derived work point against machine-reported work point using existing offsets.<br><br>
+            <strong>Pass/Fail tolerance:</strong> ±0.03 ft (configurable)</p>
+        </div>
+
+        <div class="section">
+            <div class="section-title">📐 Rover Mechanical Offset from Work Point</div>
+            <div class="input-grid three-col">
+                <div class="input-group">
+                    <label>X (up mast) ft</label>
+                    <input type="number" id="qc_mechX" step="any" placeholder="5.000" oninput="calcQC()">
+                </div>
+                <div class="input-group">
+                    <label>Y (right) ft</label>
+                    <input type="number" id="qc_mechY" step="any" placeholder="0.000" oninput="calcQC()">
+                </div>
+                <div class="input-group">
+                    <label>Z (perp) ft</label>
+                    <input type="number" id="qc_mechZ" step="any" placeholder="0.000" oninput="calcQC()">
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">📡 Current Machine Offsets (Programmed)</div>
+            <div class="input-grid">
+                <div class="input-group full-width">
+                    <label>Heading Offset (°)</label>
+                    <input type="number" id="qc_curH" step="any" placeholder="-89.2" oninput="calcQC()">
+                </div>
+                <div class="input-group">
+                    <label>X (forward) ft</label>
+                    <input type="number" id="qc_curX" step="any" placeholder="3.586" oninput="calcQC()">
+                </div>
+                <div class="input-group">
+                    <label>Y (right) ft</label>
+                    <input type="number" id="qc_curY" step="any" placeholder="4.478" oninput="calcQC()">
+                </div>
+                <div class="input-group full-width">
+                    <label>Z (down) ft</label>
+                    <input type="number" id="qc_curZ" step="any" placeholder="-6.737" oninput="calcQC()">
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">📊 QC Reading</div>
+            <div class="input-grid three-col">
+                <div class="input-group">
+                    <label>Heading (°)</label>
+                    <input type="number" id="qc_heading" step="any" placeholder="45.3" oninput="calcQC()">
+                </div>
+                <div class="input-group">
+                    <label>Pitch (°)</label>
+                    <input type="number" id="qc_pitch" step="any" placeholder="0.0" value="0" oninput="calcQC()">
+                </div>
+                <div class="input-group">
+                    <label>Roll (°)</label>
+                    <input type="number" id="qc_roll" step="any" placeholder="0.0" value="0" oninput="calcQC()">
+                </div>
+            </div>
+            <div style="margin-top: 10px;">
+                <div style="font-size: 0.7rem; color: var(--blue); margin-bottom: 4px;">Machine Antenna (AH=0)</div>
+                <div class="input-grid three-col">
+                    <div class="input-group"><label>N (ft)</label><input type="number" id="qc_aN" step="any" placeholder="Northing" oninput="calcQC()"></div>
+                    <div class="input-group"><label>E (ft)</label><input type="number" id="qc_aE" step="any" placeholder="Easting" oninput="calcQC()"></div>
+                    <div class="input-group"><label>Z (ft)</label><input type="number" id="qc_aZ" step="any" placeholder="Elevation" oninput="calcQC()"></div>
+                </div>
+            </div>
+            <div style="margin-top: 10px;">
+                <div style="font-size: 0.7rem; color: var(--green); margin-bottom: 4px;">Calibration Rover</div>
+                <div class="input-grid three-col">
+                    <div class="input-group"><label>N (ft)</label><input type="number" id="qc_rN" step="any" placeholder="Northing" oninput="calcQC()"></div>
+                    <div class="input-group"><label>E (ft)</label><input type="number" id="qc_rE" step="any" placeholder="Easting" oninput="calcQC()"></div>
+                    <div class="input-group"><label>Z (ft)</label><input type="number" id="qc_rZ" step="any" placeholder="Elevation" oninput="calcQC()"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">⚙️ Tolerance</div>
+            <div class="input-grid">
+                <div class="input-group">
+                    <label>Pass Threshold (ft)</label>
+                    <input type="number" id="qc_passThresh" step="any" value="0.03" oninput="calcQC()">
+                </div>
+                <div class="input-group">
+                    <label>Warn Threshold (ft)</label>
+                    <input type="number" id="qc_warnThresh" step="any" value="0.06" oninput="calcQC()">
+                </div>
+            </div>
+        </div>
+
+        <div id="qc_resultBox" class="qc-result pass" style="display:none;">
+            <div class="qc-icon" id="qc_icon">✅</div>
+            <div class="qc-text" id="qc_status">PASS</div>
+            <div class="qc-detail" id="qc_detail">Offsets within tolerance</div>
+        </div>
+
+        <div class="section results" id="qc_results" style="display:none;">
+            <div class="section-title">📊 QC Deviation</div>
+            <div class="result-grid">
+                <div class="result-item">
+                    <div class="result-label">ΔX Error</div>
+                    <div class="result-value"><span id="qc_dX">--</span><span class="result-unit">ft</span></div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">ΔY Error</div>
+                    <div class="result-value"><span id="qc_dY">--</span><span class="result-unit">ft</span></div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">ΔZ Error</div>
+                    <div class="result-value"><span id="qc_dZ">--</span><span class="result-unit">ft</span></div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">3D Error</div>
+                    <div class="result-value"><span id="qc_3d">--</span><span class="result-unit">ft</span></div>
+                </div>
+            </div>
+            <button class="copy-btn" onclick="copyQCResults()">📋 Copy QC Results</button>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">Copied!</div>
 
     <script>
-        let sampleCount = 0;
+        // ==================== TAB SWITCHING ====================
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById(`tab-${tab}`).classList.add('active');
+            event.target.classList.add('active');
+        }
 
-        function addSample() {
-            sampleCount++;
-            const container = document.getElementById('samplesContainer');
-            const div = document.createElement('div');
-            div.id = `sample-${sampleCount}`;
-            div.className = 'sample-block';
-            div.style.marginBottom = '12px';
-            div.style.borderLeft = '2px solid var(--accent)';
-            div.style.paddingLeft = '4px';
+        // ==================== MATH HELPERS ====================
+        function toRad(d) { return d * Math.PI / 180; }
+        function toDeg(r) { return r * 180 / Math.PI; }
+
+        // Rotate body-frame vector to world frame given heading (azimuth), pitch, roll
+        // Convention: heading = clockwise from North, pitch = tilt forward, roll = tilt right
+        // For mast: X = up the mast (maps to -Z world when vertical, but depends on pitch)
+        // Simplified for near-vertical mast: heading rotates in horizontal plane
+        function mastBodyToWorld(x, y, z, heading, pitch, roll) {
+            const h = toRad(heading);
+            const p = toRad(pitch);
+            const r = toRad(roll);
+            const cosH = Math.cos(h), sinH = Math.sin(h);
+            const cosP = Math.cos(p), sinP = Math.sin(p);
+            const cosR = Math.cos(r), sinR = Math.sin(r);
+
+            // Mast body frame: X = forward along mast direction projected to horizontal
+            // When mast is vertical and heading is H:
+            //   body X (up mast) maps to world: N = x*cosH*cosP, E = x*sinH*cosP, D = -x*sinP
+            //   body Y (right)   maps to world: N = -y*sinH*cosR + ..., E = y*cosH*cosR + ...
+            //   body Z (perp out from mast face)
             
-            const n = sampleCount;
-            div.innerHTML = `
-                <div class="sample-row">
-                    <div class="sample-num">${n}</div>
-                    <input type="number" step="any" placeholder="Mach N" id="s${n}_machN" oninput="calculate()">
-                    <input type="number" step="any" placeholder="Mach E" id="s${n}_machE" oninput="calculate()">
-                    <input type="number" step="any" placeholder="Mach Z" id="s${n}_machZ" oninput="calculate()">
-                    <button class="remove-btn" onclick="removeSample(${n})">✕</button>
-                </div>
-                <div class="sample-row" style="margin-top:-4px;">
-                    <div class="sample-num"></div>
-                    <input type="number" step="any" placeholder="Rover N" id="s${n}_roverN" oninput="calculate()">
-                    <input type="number" step="any" placeholder="Rover E" id="s${n}_roverE" oninput="calculate()">
-                    <input type="number" step="any" placeholder="Rover Z" id="s${n}_roverZ" oninput="calculate()">
-                    <div></div>
-                </div>
-                <div class="sample-row" style="margin-top:-4px;">
-                    <div class="sample-num"></div>
-                    <input type="number" step="any" placeholder="Heading°" id="s${n}_heading" oninput="calculate()">
-                    <input type="number" step="any" placeholder="Pitch°" id="s${n}_pitch" value="0" oninput="calculate()">
-                    <input type="number" step="any" placeholder="Roll°" id="s${n}_roll" value="0" oninput="calculate()">
-                    <div></div>
-                </div>
-            `;
-            container.appendChild(div);
-            updateSampleCount();
-            calculate();
+            // Using standard NED rotation matrix (heading, pitch, roll):
+            // Forward (X) in body → N,E,D in world
+            const wN = x * cosH * cosP + y * (cosH * sinP * sinR - sinH * cosR) + z * (cosH * sinP * cosR + sinH * sinR);
+            const wE = x * sinH * cosP + y * (sinH * sinP * sinR + cosH * cosR) + z * (sinH * sinP * cosR - cosH * sinR);
+            const wD = x * (-sinP) + y * (cosP * sinR) + z * (cosP * cosR);
+
+            return { n: wN, e: wE, d: wD };
         }
 
-        function removeSample(n) {
-            const el = document.getElementById(`sample-${n}`);
-            if (el) el.remove();
-            updateSampleCount();
-            calculate();
+        // World to body (inverse = transpose for rotation matrix)
+        function worldToMastBody(dN, dE, dD, heading, pitch, roll) {
+            const h = toRad(heading);
+            const p = toRad(pitch);
+            const r = toRad(roll);
+            const cosH = Math.cos(h), sinH = Math.sin(h);
+            const cosP = Math.cos(p), sinP = Math.sin(p);
+            const cosR = Math.cos(r), sinR = Math.sin(r);
+
+            const x = dN * cosH * cosP + dE * sinH * cosP + dD * (-sinP);
+            const y = dN * (cosH * sinP * sinR - sinH * cosR) + dE * (sinH * sinP * sinR + cosH * cosR) + dD * (cosP * sinR);
+            const z = dN * (cosH * sinP * cosR + sinH * sinR) + dE * (sinH * sinP * cosR - cosH * sinR) + dD * (cosP * cosR);
+
+            return { x, y, z };
         }
 
-        function clearSamples() {
-            document.getElementById('samplesContainer').innerHTML = '';
-            sampleCount = 0;
-            updateSampleCount();
-            calculate();
-        }
-
-        function updateSampleCount() {
-            const blocks = document.querySelectorAll('.sample-block');
-            const count = blocks.length;
-            const badge = document.getElementById('sampleCount');
-            badge.textContent = `${count} sample${count !== 1 ? 's' : ''}`;
-            if (count >= 10) {
-                badge.className = 'status-badge good';
-            } else if (count >= 3) {
-                badge.className = 'status-badge warn';
-            } else {
-                badge.className = 'status-badge bad';
-            }
-        }
-
-        function getVal(id) {
+        function getV(id) {
             const el = document.getElementById(id);
             if (!el) return null;
             const v = parseFloat(el.value);
             return isNaN(v) ? null : v;
         }
 
-        function toRad(deg) { return deg * Math.PI / 180; }
-        function toDeg(rad) { return rad * 180 / Math.PI; }
+        // ==================== INITIAL CALIBRATION ====================
+        function calcInitial() {
+            const mechX = getV('ic_mechX');
+            const mechY = getV('ic_mechY');
+            const mechZ = getV('ic_mechZ');
+            if ([mechX, mechY, mechZ].some(v => v === null)) { clearInitialResults(); return; }
 
-        // Rotate a vector from body frame to world frame given heading, pitch, roll
-        function bodyToWorld(x, y, z, heading, pitch, roll) {
-            const h = toRad(heading);
-            const p = toRad(pitch);
-            const r = toRad(roll);
-            
-            const cosH = Math.cos(h), sinH = Math.sin(h);
-            const cosP = Math.cos(p), sinP = Math.sin(p);
-            const cosR = Math.cos(r), sinR = Math.sin(r);
-            
-            // Rotation matrix: R_heading * R_pitch * R_roll
-            // World N = x*cosH*cosP + y*(cosH*sinP*sinR - sinH*cosR) + z*(cosH*sinP*cosR + sinH*sinR)
-            // World E = x*sinH*cosP + y*(sinH*sinP*sinR + cosH*cosR) + z*(sinH*sinP*cosR - cosH*sinR)
-            // World D = x*(-sinP)   + y*(cosP*sinR)                  + z*(cosP*cosR)
-            
-            const wN = x * cosH * cosP + y * (cosH * sinP * sinR - sinH * cosR) + z * (cosH * sinP * cosR + sinH * sinR);
-            const wE = x * sinH * cosP + y * (sinH * sinP * sinR + cosH * cosR) + z * (sinH * sinP * cosR - cosH * sinR);
-            const wD = x * (-sinP) + y * (cosP * sinR) + z * (cosP * cosR);
-            
-            return { n: wN, e: wE, d: wD };
-        }
-
-        // Rotate a vector from world frame to body frame (inverse rotation)
-        function worldToBody(dN, dE, dD, heading, pitch, roll) {
-            const h = toRad(heading);
-            const p = toRad(pitch);
-            const r = toRad(roll);
-            
-            const cosH = Math.cos(h), sinH = Math.sin(h);
-            const cosP = Math.cos(p), sinP = Math.sin(p);
-            const cosR = Math.cos(r), sinR = Math.sin(r);
-            
-            // Transpose of the bodyToWorld matrix
-            const x = dN * cosH * cosP + dE * sinH * cosP + dD * (-sinP);
-            const y = dN * (cosH * sinP * sinR - sinH * cosR) + dE * (sinH * sinP * sinR + cosH * cosR) + dD * (cosP * sinR);
-            const z = dN * (cosH * sinP * cosR + sinH * sinR) + dE * (sinH * sinP * cosR - cosH * sinR) + dD * (cosP * cosR);
-            
-            return { x, y, z };
-        }
-
-        function calculate() {
-            // Get mechanical offset
-            const mechX = getVal('mechX');
-            const mechY = getVal('mechY');
-            const mechZ = getVal('mechZ');
-            
-            // Get current offsets
-            const curHO = getVal('curHeadingOffset');
-            const curX = getVal('curX');
-            const curY = getVal('curY');
-            const curZ = getVal('curZ');
-            
-            if ([mechX, mechY, mechZ, curHO, curX, curY, curZ].some(v => v === null)) {
-                clearResults();
-                return;
-            }
-
-            // Collect valid samples
+            // Collect 3 yaw positions
             const samples = [];
-            const blocks = document.querySelectorAll('.sample-block');
-            blocks.forEach(block => {
-                const id = block.id.replace('sample-', '');
-                const machN = getVal(`s${id}_machN`);
-                const machE = getVal(`s${id}_machE`);
-                const machZ = getVal(`s${id}_machZ`);
-                const roverN = getVal(`s${id}_roverN`);
-                const roverE = getVal(`s${id}_roverE`);
-                const roverZ = getVal(`s${id}_roverZ`);
-                const heading = getVal(`s${id}_heading`);
-                const pitch = getVal(`s${id}_pitch`);
-                const roll = getVal(`s${id}_roll`);
-                
-                if ([machN, machE, machZ, roverN, roverE, roverZ, heading, pitch, roll].every(v => v !== null)) {
-                    samples.push({ id, machN, machE, machZ, roverN, roverE, roverZ, heading, pitch: pitch || 0, roll: roll || 0 });
+            for (let i = 1; i <= 3; i++) {
+                const h = getV(`ic_h${i}`);
+                const p = getV(`ic_p${i}`);
+                const r = getV(`ic_r${i}`);
+                const aN = getV(`ic_aN${i}`);
+                const aE = getV(`ic_aE${i}`);
+                const aZ = getV(`ic_aZ${i}`);
+                const rN = getV(`ic_rN${i}`);
+                const rE = getV(`ic_rE${i}`);
+                const rZ = getV(`ic_rZ${i}`);
+                if ([h, p, r, aN, aE, aZ, rN, rE, rZ].some(v => v === null)) {
+                    clearInitialResults();
+                    return;
                 }
-            });
-
-            if (samples.length < 3) {
-                clearResults();
-                return;
+                samples.push({ h, p, r, aN, aE, aZ, rN, rE, rZ });
             }
 
-            // For each sample, compute the offset error
-            // 1. From rover position + mechanical offset + heading → compute true work point
-            // 2. From machine antenna position + current offsets + heading → compute reported work point
-            // 3. Difference = offset error in world frame → transform to body frame
+            // For each sample, compute the observed antenna-to-rover vector in world frame
+            // Then find heading_error and antenna offset that best fits
 
-            const errors = [];
+            // Observed world vectors (antenna → rover)
+            const worldVecs = samples.map(s => ({
+                dN: s.rN - s.aN,
+                dE: s.rE - s.aE,
+                dD: s.rZ - s.aZ
+            }));
 
-            for (const s of samples) {
-                // True work point from rover:
-                // Rover is at known mechanical offset from work point
-                // So work point = rover position - rotated mechanical offset
-                const mechWorld = bodyToWorld(mechX, mechY, mechZ, s.heading, s.pitch, s.roll);
-                const trueWP_N = s.roverN - mechWorld.n;
-                const trueWP_E = s.roverE - mechWorld.e;
-                const trueWP_D = s.roverZ - mechWorld.d;
+            // The body-frame vector from antenna to rover is:
+            // V_body = rover_mech_offset - antenna_offset (what we want to find)
+            // In world: V_world_i = R(reported_heading_i + heading_error, pitch_i, roll_i) * V_body
 
-                // Reported work point from machine antenna + current offsets:
-                const curWorld = bodyToWorld(curX, curY, curZ, s.heading + curHO, s.pitch, s.roll);
-                const reportedWP_N = s.machN + curWorld.n;
-                const reportedWP_E = s.machE + curWorld.e;
-                const reportedWP_D = s.machZ + curWorld.d;
+            // We solve for heading_error and V_body using least squares
+            // Grid search over heading_error, then solve V_body analytically
 
-                // Error in world frame
-                const errN = trueWP_N - reportedWP_N;
-                const errE = trueWP_E - reportedWP_E;
-                const errD = trueWP_D - reportedWP_D;
+            let bestErr = Infinity;
+            let bestHE = 0;
+            let bestVBody = { x: 0, y: 0, z: 0 };
 
-                // Transform error to body frame for this heading
-                const bodyErr = worldToBody(errN, errE, errD, s.heading + curHO, s.pitch, s.roll);
-
-                errors.push({
-                    id: s.id,
-                    errN, errE, errD,
-                    errX: bodyErr.x,
-                    errY: bodyErr.y,
-                    errZ: bodyErr.z,
-                    total: Math.sqrt(errN * errN + errE * errE + errD * errD)
-                });
+            // Coarse search: -180 to +180 in 0.5° steps
+            for (let he = -180; he < 180; he += 0.5) {
+                const vb = solveBodyVector(samples, worldVecs, he);
+                const err = computeResidual(samples, worldVecs, he, vb);
+                if (err < bestErr) {
+                    bestErr = err;
+                    bestHE = he;
+                    bestVBody = vb;
+                }
             }
 
-            // Average the body-frame errors = correction to apply
-            const n = errors.length;
-            const avgX = errors.reduce((s, e) => s + e.errX, 0) / n;
-            const avgY = errors.reduce((s, e) => s + e.errY, 0) / n;
-            const avgZ = errors.reduce((s, e) => s + e.errZ, 0) / n;
+            // Fine search: ±1° around best in 0.01° steps
+            for (let he = bestHE - 1; he <= bestHE + 1; he += 0.01) {
+                const vb = solveBodyVector(samples, worldVecs, he);
+                const err = computeResidual(samples, worldVecs, he, vb);
+                if (err < bestErr) {
+                    bestErr = err;
+                    bestHE = he;
+                    bestVBody = vb;
+                }
+            }
 
-            // Heading correction: compute from average world-frame error
-            const avgN = errors.reduce((s, e) => s + e.errN, 0) / n;
-            const avgE = errors.reduce((s, e) => s + e.errE, 0) / n;
-            // Heading error = atan2 of cross-track error at distance
-            // Simpler: compute heading correction from the X/Y error pattern
-            const headingCorr = toDeg(Math.atan2(avgY, Math.abs(curX) || 1));
+            // Antenna offset = rover mechanical offset - solved body vector
+            const antX = mechX - bestVBody.x;
+            const antY = mechY - bestVBody.y;
+            const antZ = mechZ - bestVBody.z;
 
-            // Residuals after correction
-            const residuals = errors.map(e => {
-                const rx = e.errX - avgX;
-                const ry = e.errY - avgY;
-                const rz = e.errZ - avgZ;
-                return Math.sqrt(rx * rx + ry * ry + rz * rz);
-            });
+            // RMS
+            const rms = Math.sqrt(bestErr / (samples.length * 3));
 
-            const rms = Math.sqrt(residuals.reduce((s, r) => s + r * r, 0) / n);
-            const maxRes = Math.max(...residuals);
+            // Vector magnitude check — should be consistent across samples
+            const mags = worldVecs.map(v => Math.sqrt(v.dN ** 2 + v.dE ** 2 + v.dD ** 2));
+            const magMean = mags.reduce((a, b) => a + b, 0) / mags.length;
+            const magSpread = Math.max(...mags) - Math.min(...mags);
 
-            // New absolute offsets
-            const newX = curX + avgX;
-            const newY = curY + avgY;
-            const newZ = curZ + avgZ;
-            const newHO = curHO + headingCorr;
+            // Display
+            document.getElementById('ic_resultH').textContent = bestHE.toFixed(3);
+            document.getElementById('ic_resultX').textContent = antX.toFixed(4);
+            document.getElementById('ic_resultY').textContent = antY.toFixed(4);
+            document.getElementById('ic_resultZ').textContent = antZ.toFixed(4);
+            document.getElementById('ic_rms').textContent = rms.toFixed(4);
 
-            // Confidence
-            let confidence, confClass;
-            if (rms < 0.02 && n >= 10) {
-                confidence = 'HIGH';
-                confClass = 'good';
-            } else if (rms < 0.05 && n >= 5) {
-                confidence = 'MEDIUM';
-                confClass = 'warn';
+            const vecEl = document.getElementById('ic_vecCheck');
+            if (magSpread < 0.05) {
+                vecEl.textContent = '✓';
+                vecEl.style.color = 'var(--green)';
+            } else if (magSpread < 0.15) {
+                vecEl.textContent = '~';
+                vecEl.style.color = 'var(--orange)';
             } else {
-                confidence = 'LOW';
-                confClass = 'bad';
+                vecEl.textContent = '✗';
+                vecEl.style.color = 'var(--highlight)';
             }
 
-            // Display results
-            document.getElementById('resultHeading').textContent = headingCorr.toFixed(3);
-            document.getElementById('resultX').textContent = avgX.toFixed(4);
-            document.getElementById('resultY').textContent = avgY.toFixed(4);
-            document.getElementById('resultZ').textContent = avgZ.toFixed(4);
-            document.getElementById('newHeading').textContent = newHO.toFixed(3);
-            document.getElementById('newX').textContent = newX.toFixed(4);
-            document.getElementById('newY').textContent = newY.toFixed(4);
-            document.getElementById('newZ').textContent = newZ.toFixed(4);
-            document.getElementById('resultRMS').textContent = rms.toFixed(4);
-            document.getElementById('resultMaxRes').textContent = maxRes.toFixed(4);
+            // Debug
+            let debug = '';
+            debug += `Heading error: ${bestHE.toFixed(4)}°\n`;
+            debug += `Body vector (ant→rover): X=${bestVBody.x.toFixed(4)} Y=${bestVBody.y.toFixed(4)} Z=${bestVBody.z.toFixed(4)}\n`;
+            debug += `Antenna offset from WP: X=${antX.toFixed(4)} Y=${antY.toFixed(4)} Z=${antZ.toFixed(4)}\n`;
+            debug += `RMS: ${rms.toFixed(4)} ft\n\n`;
             
-            const confEl = document.getElementById('resultConfidence');
-            confEl.textContent = confidence + ` (n=${n})`;
-            confEl.style.color = confClass === 'good' ? 'var(--green)' : confClass === 'warn' ? 'var(--orange)' : 'var(--highlight)';
-
-            // Per-sample debug
-            const debugContainer = document.getElementById('perSampleResults');
-            debugContainer.innerHTML = `
-                <div class="per-sample-row header">
-                    <span>#</span>
-                    <span style="text-align:right">ΔX err</span>
-                    <span style="text-align:right">ΔY err</span>
-                    <span style="text-align:right">ΔZ err</span>
-                    <span style="text-align:right">Total</span>
-                </div>
-            `;
-            
-            // Flag outliers (>2σ)
-            const mean = residuals.reduce((s, r) => s + r, 0) / n;
-            const stdDev = Math.sqrt(residuals.reduce((s, r) => s + (r - mean) ** 2, 0) / n);
-            
-            errors.forEach((e, i) => {
-                const isOutlier = residuals[i] > mean + 2 * stdDev;
-                const cls = isOutlier ? 'outlier' : '';
-                debugContainer.innerHTML += `
-                    <div class="per-sample-row">
-                        <span class="num">${e.id}</span>
-                        <span class="val ${cls}">${e.errX.toFixed(4)}</span>
-                        <span class="val ${cls}">${e.errY.toFixed(4)}</span>
-                        <span class="val ${cls}">${e.errZ.toFixed(4)}</span>
-                        <span class="val ${cls}">${e.total.toFixed(4)}</span>
-                    </div>
-                `;
+            samples.forEach((s, i) => {
+                const predicted = mastBodyToWorld(bestVBody.x, bestVBody.y, bestVBody.z, s.h + bestHE, s.p, s.r);
+                const resN = worldVecs[i].dN - predicted.n;
+                const resE = worldVecs[i].dE - predicted.e;
+                const resD = worldVecs[i].dD - predicted.d;
+                debug += `Sample ${i + 1} (H=${s.h}°): residual N=${resN.toFixed(4)} E=${resE.toFixed(4)} D=${resD.toFixed(4)}\n`;
+                debug += `  Observed:  dN=${worldVecs[i].dN.toFixed(4)} dE=${worldVecs[i].dE.toFixed(4)} dD=${worldVecs[i].dD.toFixed(4)}\n`;
+                debug += `  Predicted: dN=${predicted.n.toFixed(4)} dE=${predicted.e.toFixed(4)} dD=${predicted.d.toFixed(4)}\n`;
+                debug += `  Vector mag: ${mags[i].toFixed(4)} ft\n\n`;
             });
+
+            document.getElementById('ic_debugText').textContent = debug;
         }
 
-        function clearResults() {
-            ['resultHeading', 'resultX', 'resultY', 'resultZ', 'newHeading', 'newX', 'newY', 'newZ', 'resultRMS', 'resultMaxRes'].forEach(id => {
+        function solveBodyVector(samples, worldVecs, headingError) {
+            // For a given heading error, solve for the body vector that minimizes residuals
+            // V_world_i = R(h_i + he, p_i, r_i) * V_body
+            // This is a linear system: stack the rotation matrices and solve
+            
+            // Average the body-frame vectors computed from each sample
+            let sumX = 0, sumY = 0, sumZ = 0;
+            for (let i = 0; i < samples.length; i++) {
+                const s = samples[i];
+                const v = worldToMastBody(worldVecs[i].dN, worldVecs[i].dE, worldVecs[i].dD, s.h + headingError, s.p, s.r);
+                sumX += v.x;
+                sumY += v.y;
+                sumZ += v.z;
+            }
+            return {
+                x: sumX / samples.length,
+                y: sumY / samples.length,
+                z: sumZ / samples.length
+            };
+        }
+
+        function computeResidual(samples, worldVecs, headingError, vBody) {
+            let totalErr = 0;
+            for (let i = 0; i < samples.length; i++) {
+                const s = samples[i];
+                const predicted = mastBodyToWorld(vBody.x, vBody.y, vBody.z, s.h + headingError, s.p, s.r);
+                totalErr += (worldVecs[i].dN - predicted.n) ** 2;
+                totalErr += (worldVecs[i].dE - predicted.e) ** 2;
+                totalErr += (worldVecs[i].dD - predicted.d) ** 2;
+            }
+            return totalErr;
+        }
+
+        function clearInitialResults() {
+            ['ic_resultH', 'ic_resultX', 'ic_resultY', 'ic_resultZ', 'ic_rms'].forEach(id => {
                 document.getElementById(id).textContent = '--';
             });
-            document.getElementById('resultConfidence').textContent = '--';
+            document.getElementById('ic_vecCheck').textContent = '--';
+            document.getElementById('ic_vecCheck').style.color = '#888';
         }
 
-        function copyResults() {
-            const machineId = document.getElementById('machineId').value || 'N/A';
-            const h = document.getElementById('resultHeading').textContent;
-            const x = document.getElementById('resultX').textContent;
-            const y = document.getElementById('resultY').textContent;
-            const z = document.getElementById('resultZ').textContent;
-            const nh = document.getElementById('newHeading').textContent;
-            const nx = document.getElementById('newX').textContent;
-            const ny = document.getElementById('newY').textContent;
-            const nz = document.getElementById('newZ').textContent;
-            const rms = document.getElementById('resultRMS').textContent;
-            const conf = document.getElementById('resultConfidence').textContent;
-            
-            if (h === '--') {
-                showToast('No results to copy');
+        function clearInitialSamples() {
+            for (let i = 1; i <= 3; i++) {
+                ['h', 'p', 'r', 'aN', 'aE', 'aZ', 'rN', 'rE', 'rZ'].forEach(f => {
+                    const el = document.getElementById(`ic_${f}${i}`);
+                    if (el && !el.readOnly) {
+                        if (f === 'p' || f === 'r') el.value = '0';
+                        else el.value = '';
+                    }
+                });
+            }
+            clearInitialResults();
+        }
+
+        // ==================== MORNING QC ====================
+        function calcQC() {
+            const mechX = getV('qc_mechX');
+            const mechY = getV('qc_mechY');
+            const mechZ = getV('qc_mechZ');
+            const curH = getV('qc_curH');
+            const curX = getV('qc_curX');
+            const curY = getV('qc_curY');
+            const curZ = getV('qc_curZ');
+            const heading = getV('qc_heading');
+            const pitch = getV('qc_pitch');
+            const roll = getV('qc_roll');
+            const aN = getV('qc_aN');
+            const aE = getV('qc_aE');
+            const aZ = getV('qc_aZ');
+            const rN = getV('qc_rN');
+            const rE = getV('qc_rE');
+            const rZ = getV('qc_rZ');
+            const passT = getV('qc_passThresh') || 0.03;
+            const warnT = getV('qc_warnThresh') || 0.06;
+
+            if ([mechX, mechY, mechZ, curH, curX, curY, curZ, heading, pitch, roll, aN, aE, aZ, rN, rE, rZ].some(v => v === null)) {
+                document.getElementById('qc_resultBox').style.display = 'none';
+                document.getElementById('qc_results').style.display = 'none';
                 return;
             }
-            
-            const text = [
-                `Rover Calibration Results`,
-                `Machine: ${machineId}`,
-                `Date: ${new Date().toLocaleDateString()}`,
-                ``,
-                `Corrections:`,
-                `  Heading: ${h}°`,
-                `  ΔX: ${x} ft`,
-                `  ΔY: ${y} ft`,
-                `  ΔZ: ${z} ft`,
-                ``,
-                `New Offsets:`,
-                `  Heading: ${nh}°`,
-                `  X: ${nx} ft`,
-                `  Y: ${ny} ft`,
-                `  Z: ${nz} ft`,
-                ``,
-                `RMS: ${rms} ft | Confidence: ${conf}`
-            ].join('\n');
-            
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(text).then(() => {
-                    showToast('Copied to clipboard!');
-                }).catch(() => fallbackCopy(text));
+
+            // True work point from rover
+            const roverOffset = mastBodyToWorld(mechX, mechY, mechZ, heading + curH, pitch, roll);
+            const trueWP_N = rN - roverOffset.n;
+            const trueWP_E = rE - roverOffset.e;
+            const trueWP_D = rZ - roverOffset.d;
+
+            // Reported work point from machine antenna + current offsets
+            const antOffset = mastBodyToWorld(curX, curY, curZ, heading + curH, pitch, roll);
+            const reportedWP_N = aN + antOffset.n;
+            const reportedWP_E = aE + antOffset.e;
+            const reportedWP_D = aZ + antOffset.d;
+
+            // Error in world frame
+            const errN = trueWP_N - reportedWP_N;
+            const errE = trueWP_E - reportedWP_E;
+            const errD = trueWP_D - reportedWP_D;
+
+            // Transform to body frame
+            const bodyErr = worldToMastBody(errN, errE, errD, heading + curH, pitch, roll);
+            const err3d = Math.sqrt(errN ** 2 + errE ** 2 + errD ** 2);
+
+            // Display
+            document.getElementById('qc_dX').textContent = bodyErr.x.toFixed(4);
+            document.getElementById('qc_dY').textContent = bodyErr.y.toFixed(4);
+            document.getElementById('qc_dZ').textContent = bodyErr.z.toFixed(4);
+            document.getElementById('qc_3d').textContent = err3d.toFixed(4);
+
+            const box = document.getElementById('qc_resultBox');
+            const icon = document.getElementById('qc_icon');
+            const status = document.getElementById('qc_status');
+            const detail = document.getElementById('qc_detail');
+
+            box.style.display = 'block';
+            document.getElementById('qc_results').style.display = 'block';
+
+            if (err3d <= passT) {
+                box.className = 'qc-result pass';
+                icon.textContent = '✅';
+                status.textContent = 'PASS';
+                detail.textContent = `3D error: ${(err3d * 12).toFixed(1)}″ (${err3d.toFixed(4)} ft) — within ${passT} ft tolerance`;
+            } else if (err3d <= warnT) {
+                box.className = 'qc-result warn';
+                icon.textContent = '⚠️';
+                status.textContent = 'WARNING';
+                detail.textContent = `3D error: ${(err3d * 12).toFixed(1)}″ (${err3d.toFixed(4)} ft) — exceeds pass threshold, consider recalibration`;
             } else {
-                fallbackCopy(text);
+                box.className = 'qc-result fail';
+                icon.textContent = '❌';
+                status.textContent = 'FAIL';
+                detail.textContent = `3D error: ${(err3d * 12).toFixed(1)}″ (${err3d.toFixed(4)} ft) — recalibration required`;
             }
         }
-        
+
+        // ==================== COPY ====================
+        function copyInitialResults() {
+            const mid = document.getElementById('ic_machineId').value || 'N/A';
+            const h = document.getElementById('ic_resultH').textContent;
+            const x = document.getElementById('ic_resultX').textContent;
+            const y = document.getElementById('ic_resultY').textContent;
+            const z = document.getElementById('ic_resultZ').textContent;
+            const rms = document.getElementById('ic_rms').textContent;
+            if (h === '--') { showToast('No results'); return; }
+
+            const text = [
+                `Rover Calibration — Initial`,
+                `Machine: ${mid}`,
+                `Date: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`,
+                ``,
+                `Heading Offset: ${h}°`,
+                `X Offset (fwd): ${x} ft`,
+                `Y Offset (right): ${y} ft`,
+                `Z Offset (down): ${z} ft`,
+                ``,
+                `Fit RMS: ${rms} ft`,
+                `Method: 3-position mast rotation with rover reference`
+            ].join('\n');
+            copyText(text);
+        }
+
+        function copyQCResults() {
+            const dx = document.getElementById('qc_dX').textContent;
+            const dy = document.getElementById('qc_dY').textContent;
+            const dz = document.getElementById('qc_dZ').textContent;
+            const d3 = document.getElementById('qc_3d').textContent;
+            const st = document.getElementById('qc_status').textContent;
+            if (dx === '--') { showToast('No results'); return; }
+
+            const text = [
+                `QC Check — ${st}`,
+                `Date: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`,
+                `ΔX: ${dx} ft  ΔY: ${dy} ft  ΔZ: ${dz} ft`,
+                `3D Error: ${d3} ft`
+            ].join('\n');
+            copyText(text);
+        }
+
+        function copyText(text) {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(() => showToast('Copied!')).catch(() => fallbackCopy(text));
+            } else { fallbackCopy(text); }
+        }
+
         function fallbackCopy(text) {
-            const textarea = document.createElement('textarea');
-            textarea.value = text;
-            textarea.style.position = 'fixed';
-            textarea.style.left = '-9999px';
-            textarea.setAttribute('readonly', '');
-            document.body.appendChild(textarea);
-            textarea.select();
-            textarea.setSelectionRange(0, 99999);
-            try {
-                document.execCommand('copy');
-                showToast('Copied to clipboard!');
-            } catch (err) {
-                prompt('Copy these values:', text);
-            }
-            document.body.removeChild(textarea);
+            const ta = document.createElement('textarea');
+            ta.value = text; ta.style.position = 'fixed'; ta.style.left = '-9999px';
+            ta.setAttribute('readonly', '');
+            document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, 99999);
+            try { document.execCommand('copy'); showToast('Copied!'); }
+            catch (e) { prompt('Copy:', text); }
+            document.body.removeChild(ta);
         }
 
         function showToast(msg) {
-            const toast = document.getElementById('toast');
-            toast.textContent = msg;
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 2000);
+            const t = document.getElementById('toast');
+            t.textContent = msg; t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 2000);
         }
 
-        function toggleDebug() {
-            const section = document.getElementById('debugSection');
-            const content = document.getElementById('debugContent');
+        function toggleSection(prefix) {
+            const section = document.getElementById(`${prefix}Section`);
+            const content = document.getElementById(`${prefix}Content`);
             section.classList.toggle('collapsed');
             content.classList.toggle('open');
         }
-
-        // Start with 3 sample rows
-        addSample();
-        addSample();
-        addSample();
     </script>
 </body>
 </html>
