@@ -247,54 +247,61 @@
 
         <!-- Diagram -->
         <div class="diagram">
-            <svg viewBox="0 0 300 160" xmlns="http://www.w3.org/2000/svg">
-                <!-- Machine body -->
-                <rect x="110" y="110" width="80" height="40" rx="6" fill="#16213e" stroke="#444" stroke-width="1.5"/>
-                <text x="150" y="135" text-anchor="middle" fill="#888" font-size="10">MACHINE</text>
-                <!-- Mast pivot -->
-                <circle cx="150" cy="110" r="4" fill="#e94560"/>
-                <text x="162" y="108" fill="#e94560" font-size="8">PIVOT</text>
-                <!-- Mast at 0° -->
-                <line x1="150" y1="110" x2="150" y2="20" stroke="#f4d03f" stroke-width="2" stroke-dasharray="4,3"/>
-                <!-- Mast antennas -->
-                <circle cx="150" cy="35" r="5" fill="#3498db" stroke="#fff" stroke-width="1"/>
-                <circle cx="150" cy="50" r="5" fill="#3498db" stroke="#fff" stroke-width="1"/>
-                <text x="168" y="38" fill="#3498db" font-size="8">ANT 1</text>
-                <text x="168" y="53" fill="#3498db" font-size="8">ANT 2</text>
-                <!-- Rover -->
-                <circle cx="150" cy="70" r="5" fill="#2ecc71" stroke="#fff" stroke-width="1"/>
-                <text x="168" y="73" fill="#2ecc71" font-size="8">ROVER</text>
-                <!-- Work point -->
-                <line x1="145" y1="20" x2="155" y2="20" stroke="#e94560" stroke-width="2"/>
-                <line x1="150" y1="15" x2="150" y2="25" stroke="#e94560" stroke-width="2"/>
-                <text x="168" y="23" fill="#e94560" font-size="8">WORK PT</text>
-                <!-- Yaw arrows -->
-                <path d="M 120 55 A 35 35 0 0 0 105 85" fill="none" stroke="#888" stroke-width="1" stroke-dasharray="3,2" marker-end="url(#arrow)"/>
-                <path d="M 180 55 A 35 35 0 0 1 195 85" fill="none" stroke="#888" stroke-width="1" stroke-dasharray="3,2" marker-end="url(#arrow)"/>
-                <text x="95" y="75" fill="#888" font-size="8">-30°</text>
-                <text x="195" y="75" fill="#888" font-size="8">+30°</text>
+            <svg viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg">
                 <defs>
                     <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse">
                         <path d="M 0 0 L 10 5 L 0 10 z" fill="#888"/>
                     </marker>
                 </defs>
+                <!-- Machine body -->
+                <rect x="110" y="150" width="80" height="40" rx="6" fill="#16213e" stroke="#444" stroke-width="1.5"/>
+                <text x="150" y="175" text-anchor="middle" fill="#888" font-size="10">MACHINE</text>
+                <!-- Mast pivot -->
+                <circle cx="150" cy="145" r="4" fill="#e94560"/>
+                <text x="162" y="143" fill="#e94560" font-size="8">PIVOT</text>
+                <!-- Mast centerline -->
+                <line x1="150" y1="145" x2="150" y2="15" stroke="#f4d03f" stroke-width="2" stroke-dasharray="4,3"/>
+                <!-- Antennas - perpendicular to mast -->
+                <circle cx="100" cy="110" r="6" fill="#3498db" stroke="#fff" stroke-width="1"/>
+                <text x="68" y="113" fill="#3498db" font-size="8">ANT 2</text>
+                <text x="68" y="122" fill="#888" font-size="7">(heading)</text>
+                <circle cx="200" cy="110" r="6" fill="#3498db" stroke="#fff" stroke-width="1"/>
+                <text x="210" y="113" fill="#3498db" font-size="8">ANT 1</text>
+                <text x="210" y="122" fill="#888" font-size="7">(primary)</text>
+                <!-- Antenna baseline -->
+                <line x1="106" y1="110" x2="194" y2="110" stroke="#3498db" stroke-width="1" stroke-dasharray="3,2" opacity="0.5"/>
+                <!-- Work point - on centerline above antennas -->
+                <line x1="145" y1="70" x2="155" y2="70" stroke="#e94560" stroke-width="2.5"/>
+                <line x1="150" y1="65" x2="150" y2="75" stroke="#e94560" stroke-width="2.5"/>
+                <text x="162" y="73" fill="#e94560" font-size="8">WORK PT</text>
+                <!-- Rover - on centerline above work point -->
+                <circle cx="150" cy="30" r="6" fill="#2ecc71" stroke="#fff" stroke-width="1"/>
+                <text x="162" y="33" fill="#2ecc71" font-size="8">ROVER</text>
+                <!-- Yaw arrows -->
+                <path d="M 115 80 A 45 45 0 0 0 95 105" fill="none" stroke="#888" stroke-width="1" stroke-dasharray="3,2" marker-end="url(#arrow)"/>
+                <path d="M 185 80 A 45 45 0 0 1 205 105" fill="none" stroke="#888" stroke-width="1" stroke-dasharray="3,2" marker-end="url(#arrow)"/>
+                <text x="80" y="90" fill="#888" font-size="8">-30°</text>
+                <text x="205" y="90" fill="#888" font-size="8">+30°</text>
+                <!-- Up direction label -->
+                <text x="150" y="10" text-anchor="middle" fill="#888" font-size="7">↑ UP MAST (forward)</text>
             </svg>
+            <div style="font-size: 0.7rem; color: #888; margin-top: 4px;">Top-down view · Position reported from ANT 1 · Heading offset ≈ -90°</div>
         </div>
 
         <div class="section">
             <div class="section-title">📐 Rover Mechanical Offset from Work Point</div>
-            <p class="info-text" style="margin-bottom: 12px;">Measured along the mast body axes. X = along mast (toward antennas), Y = right, Z = perpendicular to mast.</p>
+            <p class="info-text" style="margin-bottom: 12px;">Measured from the work point to the rover along the mast body axes. Rover is typically straight up the mast from the work point (X only).</p>
             <div class="input-grid three-col">
                 <div class="input-group">
-                    <label>X (up mast) ft</label>
+                    <label>X fwd (up mast) ft</label>
                     <input type="number" id="ic_mechX" step="any" placeholder="5.000" oninput="calcInitial()">
                 </div>
                 <div class="input-group">
-                    <label>Y (right) ft</label>
+                    <label>Y right ft</label>
                     <input type="number" id="ic_mechY" step="any" placeholder="0.000" oninput="calcInitial()">
                 </div>
                 <div class="input-group">
-                    <label>Z (perp) ft</label>
+                    <label>Z down ft</label>
                     <input type="number" id="ic_mechZ" step="any" placeholder="0.000" oninput="calcInitial()">
                 </div>
             </div>
@@ -414,7 +421,7 @@
 
         <div class="section results" id="ic_results">
             <div class="section-title">✅ Computed Antenna Offsets</div>
-            <p class="info-text" style="margin-bottom: 12px;">These are the antenna offsets from the work point, computed from the rover reference. Enter these in the machine's Dual Head Setup and Position Adjust screens.</p>
+            <p class="info-text" style="margin-bottom: 12px;">Offsets from ANT 1 to the work point. Enter Heading/X/Y in Dual Head Setup, Z in Position Adjust by Inclinometer. <strong style="color: var(--yellow);">Zero the encoder after applying.</strong></p>
             <div class="input-group" style="margin-bottom: 12px;">
                 <label>Machine ID</label>
                 <input type="text" id="ic_machineId" placeholder="Enter machine ID">
@@ -475,15 +482,15 @@
             <div class="section-title">📐 Rover Mechanical Offset from Work Point</div>
             <div class="input-grid three-col">
                 <div class="input-group">
-                    <label>X (up mast) ft</label>
+                    <label>X fwd (up mast) ft</label>
                     <input type="number" id="qc_mechX" step="any" placeholder="5.000" oninput="calcQC()">
                 </div>
                 <div class="input-group">
-                    <label>Y (right) ft</label>
+                    <label>Y right ft</label>
                     <input type="number" id="qc_mechY" step="any" placeholder="0.000" oninput="calcQC()">
                 </div>
                 <div class="input-group">
-                    <label>Z (perp) ft</label>
+                    <label>Z down ft</label>
                     <input type="number" id="qc_mechZ" step="any" placeholder="0.000" oninput="calcQC()">
                 </div>
             </div>
